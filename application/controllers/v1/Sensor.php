@@ -49,39 +49,37 @@ class Sensor extends REST_Controller {
 		if($result){
 			$auth = $result->authorization;
 			if($auth==$myAuth){
-				$id = $result->id;
-				//id_user,id_project,gyro_x,gyro_y,gyro_z,acc_x,acc_y,acc_z,hrv,createdate
-				$getdata=$this->db->query("select * from masterproject where id_project='".$id."' ");
 
-				if($getdata->num_rows()){
-					$row=$getdata->row();
-					$u_password=$row->password;
-					if($password==$u_password){
-					
+				$id = $result->id;
+				$id_user = $result->id_user;
+				$id_project = $result->id_project;
+				$gyro_x = $result->gyro_x;
+				$gyro_y = $result->gyro_y;
+				$gyro_z = $result->gyro_z;
+
+				$acc_x = $result->acc_x;
+				$acc_y = $result->acc_y;
+				$acc_z = $result->acc_z;
+
+				$hrv = $result->hrv;
+				$createdate = $result->createdate;
+				$attempt = $result->attempt;
+				$insert=$this->db->query("insert into detailproject (id_user,id_project,gyro_x,gyro_y,gyro_z,acc_x,acc_y,acc_z,hrv,createdate,attempt) values
+				        ('".$id_user."','".$id_project."','".$gyro_x."','".$gyro_y."','".$gyro_z."','".$acc_x."','".$acc_y."','".$acc_z."','".$hrv."','".$createdate."','".$attempt."')");
+
+				if($insert){
 						$this->response([
 							'status_code' => 200,
 							'message' =>"success",
-							'id_project' => $row->id_project,
-							'insert_interval' =>$row->insert_interval,
-							'sync_interval' =>$row->sync_interval
+							'id' =>$id
+							
 						], REST_Controller::HTTP_OK);
-
-					}else{
-						
-						$this->response([
-							'status_code' => 400,
-							'message' =>"wrong password"
-						], REST_Controller::HTTP_OK);
-
-					}
-					
 				}else{
 
 					$this->response([
 						'status_code' => 400,
-						'message' =>"project not found"
+						'message' =>"failed insert"
 					], REST_Controller::HTTP_OK);
-
 				}
 			}else{
 
@@ -102,6 +100,64 @@ class Sensor extends REST_Controller {
 	}
 	
 	public function setdata_get(){
+		$data = array();
+		$this->response([
+			'status_code' => 404,
+			'message' =>"not suppport method"
+		], REST_Controller::HTTP_NOT_FOUND);
+		
+	}
+
+	public function setresult_post(){
+
+		$myAuth = $this->var_global['Auth'];
+		$json_result = file_get_contents('php://input');
+		$result = json_decode($json_result);
+
+		if($result){
+			$auth = $result->authorization;
+			if($auth==$myAuth){
+
+				$id_user = $result->id_user;
+				$id_project = $result->id_project;
+				$activity = $result->activity;
+				$attempt = $result->attempt;
+				
+				$insert=$this->db->query("insert into result (id_user,id_project,activity,attempt,createdate) values
+				        ('".$id_user."','".$id_project."','".$activity."','".$attempt."',now() )");
+
+				if($insert){
+						$this->response([
+							'status_code' => 200,
+							'message' =>"success"
+							
+						], REST_Controller::HTTP_OK);
+				}else{
+
+					$this->response([
+						'status_code' => 400,
+						'message' =>"failed insert"
+					], REST_Controller::HTTP_OK);
+				}
+			}else{
+
+				$this->response([
+					'status_code' => 400,
+					'message' =>"invalid Auth"
+				], REST_Controller::HTTP_OK);
+
+			}
+			
+		}else{
+			$this->response([
+				'status_code' => 400,
+				'message' =>"empty params"
+			], REST_Controller::HTTP_OK);
+		}
+
+	}
+	
+	public function setresult_get(){
 		$data = array();
 		$this->response([
 			'status_code' => 404,

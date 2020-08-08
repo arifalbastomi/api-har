@@ -58,6 +58,8 @@ $route['translate_uri_dashes'] = TRUE;
 $route['v1/users/login'] = 'v1/users/login'; // Example 4
 $route['v1/project/getproject'] = 'v1/project/getproject'; // Example 4
 $route['v1/sensor/setdata'] = 'v1/sensor/setdata'; // Example 4
+$route['v1/sensor/setresult'] = 'v1/sensor/setresult'; // Example 4
+
 
 
 /*

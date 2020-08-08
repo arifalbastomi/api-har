@@ -51,6 +51,7 @@ class Project extends REST_Controller {
 			$auth = $result->authorization;
 			if($auth==$myAuth){
 				$id = $result->id;
+				$id_user = $result->id_user;
 				
 				$getdata=$this->db->query("select * from masterproject where id_project='".$id."' ");
 
@@ -58,14 +59,23 @@ class Project extends REST_Controller {
 					$row=$getdata->row();
 					$u_password=$row->password;
 					if($password==$u_password){
-					
+
+						$getdata_attempt=$this->db->query("SELECT max(attempt) as max from detailproject where id_project='".$id."' and id_user='".$id_user."'");
+						
+						if($getdata_attempt->num_rows()){
+							$row_attemp=$getdata_attempt->row();
+							$attempt=$row_attemp->max+1;
+						}
+
 						$this->response([
 							'status_code' => 200,
 							'message' =>"success",
 							'id_project' => $row->id_project,
 							'insert_interval' =>$row->insert_interval,
-							'sync_interval' =>$row->sync_interval
+							'sync_interval' =>$row->sync_interval,
+							'attempt' =>$attempt,
 						], REST_Controller::HTTP_OK);
+
 
 					}else{
 						
@@ -110,9 +120,5 @@ class Project extends REST_Controller {
 		], REST_Controller::HTTP_NOT_FOUND);
 		
 	}
-
-	
-	
-	
 
 }
